@@ -1,0 +1,6 @@
+node_modules/
+release/win-unpacked/
+release/*.blockmap
+release/builder-debug.yml
+npm-debug.log*
+.DS_Store

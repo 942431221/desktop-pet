@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>桌面宠物控制面板</title>
+  <style>
+    :root {
+      --bg: #f6f3ef;
+      --card: #fffaf4;
+      --text: #352a22;
+      --muted: #8d7c6c;
+      --accent: #ff934f;
+      --accent-2: #5e9cff;
+      --danger: #ef5350;
+      --border: rgba(116, 88, 58, .14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(circle at top left, rgba(255, 192, 112, .28), transparent 34%), linear-gradient(135deg, #fff8ee, var(--bg));
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 26px 30px 18px;
+    }
+    h1 { margin: 0 0 7px; font-size: 28px; }
+    p { margin: 0; color: var(--muted); line-height: 1.6; }
+    main { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr); gap: 18px; padding: 0 30px 30px; }
+    section {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: rgba(255, 250, 244, .88);
+      box-shadow: 0 18px 48px rgba(95, 66, 35, .1);
+      overflow: hidden;
+    }
+    .section-head { padding: 20px 22px 14px; border-bottom: 1px solid var(--border); }
+    .section-head h2 { margin: 0 0 5px; font-size: 18px; }
+    .content { padding: 18px 22px 22px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 10px 14px;
+      color: white;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffb15f, var(--accent));
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 147, 79, .2);
+    }
+    button.secondary { background: linear-gradient(135deg, #8ec5fc, var(--accent-2)); box-shadow: 0 8px 20px rgba(94, 156, 255, .18); }
+    button.ghost { color: var(--text); background: #fff; border: 1px solid var(--border); box-shadow: none; }
+    button.danger { background: linear-gradient(135deg, #ff8a80, var(--danger)); box-shadow: none; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .assets { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 13px; margin-top: 18px; }
+    .ai-box {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid rgba(94, 156, 255, .22);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(142, 197, 252, .16), rgba(255, 255, 255, .72));
+    }
+    .ai-box h3 { margin: 0 0 6px; font-size: 16px; }
+    .ai-box .field { margin: 12px 0; }
+    .asset {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fff;
+      transition: border .15s ease, transform .15s ease;
+    }
+    .asset.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 147, 79, .14); }
+    .asset:hover { transform: translateY(-2px); }
+    .thumb {
+      width: 100%;
+      height: 118px;
+      object-fit: contain;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f5ede5, #fff8ef);
+    }
+    .asset h3 { margin: 9px 0 8px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .asset-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .empty {
+      grid-column: 1 / -1;
+      min-height: 180px;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      border: 1px dashed rgba(255, 147, 79, .5);
+      border-radius: 18px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, .55);
+    }
+
+    label { display: block; margin: 0 0 8px; color: #6d5947; font-weight: 700; }
+    input[type="range"] { width: 100%; }
+    input[type="text"], input[type="password"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 12px;
+      color: var(--text);
+      background: rgba(255, 255, 255, .9);
+      outline: none;
+      resize: vertical;
+      font: inherit;
+    }
+    textarea { min-height: 92px; }
+    select { cursor: pointer; }
+    .field { margin-bottom: 18px; }
+    .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
+    .value { color: var(--accent); font-weight: 800; }
+    .button-editor { display: grid; gap: 10px; }
+    .interaction-item {
+      display: grid;
+      grid-template-columns: 100px 115px 105px 1fr auto;
+      gap: 8px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .68);
+      border: 1px solid var(--border);
+    }
+    .tips { margin-top: 12px; font-size: 12px; color: var(--muted); }
+    .status { min-height: 20px; margin-top: 12px; color: #3a8b58; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>桌面宠物控制面板</h1>
+      <p>管理本地素材、互动按钮、随机回应和显示尺寸。所有更改实时生效，无需重启。</p>
+    </div>
+    <div class="toolbar">
+      <button id="uploadBtn">上传素材</button>
+      <button id="folderBtn" class="secondary">打开素材目录</button>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <h2>素材库</h2>
+        <p>支持 webp、webm、mp4、mov、gif，文件会复制到本地离线目录。</p>
+      </div>
+      <div class="content">
+        <div class="toolbar">
+          <button id="placeholderBtn" class="ghost">使用默认占位宠物</button>
+        </div>
+        <div class="ai-box">
+          <h3>AI 拟人化素材生成</h3>
+          <p>上传一张形象图片，先生成一个“大笑”透明抠图素材，并绑定到“大笑”互动按钮。</p>
+          <div class="field">
+            <label for="apiKeyInput">OpenAI API Key</label>
+            <input id="apiKeyInput" type="password" placeholder="sk-...，也可使用 OPENAI_API_KEY 环境变量" />
+          </div>
+          <div class="field">
+            <label for="stylePrompt">额外风格要求（可选）</label>
+            <input id="stylePrompt" type="text" placeholder="例如：Q版、像素风、毛绒玩具风、透明背景感" />
+          </div>
+          <div class="toolbar">
+            <button id="generatePersonaBtn" class="secondary">上传形象并生成大笑素材</button>
+          </div>
+          <p class="tips">生成需要联网调用 aiflowlink 图片接口；API Key 只用于本次请求，不写入项目文件或本地配置。</p>
+        </div>
+        <div class="assets" id="assets"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>互动与显示</h2>
+        <p>文案每行一条；按钮回应也用换行分隔。</p>
+      </div>
+      <div class="content">
+        <div class="field">
+          <div class="row">
+            <label for="sizeRange">显示大小</label>
+            <span class="value" id="sizeValue">220px</span>
+          </div>
+          <input id="sizeRange" type="range" min="80" max="520" step="10" />
+        </div>
+        <div class="field">
+          <label for="clickResponses">单击随机回应</label>
+          <textarea id="clickResponses" placeholder="每行一条，例如：嗨！"></textarea>
+        </div>
+        <div class="field">
+          <label for="idleMessages">闲置自动消息</label>
+          <textarea id="idleMessages" placeholder="每行一条，例如：记得休息一下～"></textarea>
+        </div>
+        <div class="field">
+          <label for="idleInterval">闲置消息间隔（秒）</label>
+          <input id="idleInterval" type="text" placeholder="18" />
+        </div>
+        <div class="field">
+          <label>自定义互动按钮</label>
+          <div class="button-editor" id="buttonEditor"></div>
+          <div class="toolbar" style="margin-top: 10px;">
+            <button id="addButton" class="secondary">新增按钮</button>
+          </div>
+          <p class="tips">按钮名显示在桌宠悬停菜单中，点击后会切换到绑定素材并随机抽取回应文案。</p>
+        </div>
+        <div class="toolbar">
+          <button id="saveBtn">保存设置</button>
+          <button id="resetBtn" class="ghost">恢复默认互动</button>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const assetsEl = document.getElementById('assets');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const folderBtn = document.getElementById('folderBtn');
+    const placeholderBtn = document.getElementById('placeholderBtn');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const stylePrompt = document.getElementById('stylePrompt');
+    const generatePersonaBtn = document.getElementById('generatePersonaBtn');
+    const sizeRange = document.getElementById('sizeRange');
+    const sizeValue = document.getElementById('sizeValue');
+    const clickResponses = document.getElementById('clickResponses');
+    const idleMessages = document.getElementById('idleMessages');
+    const idleInterval = document.getElementById('idleInterval');
+    const buttonEditor = document.getElementById('buttonEditor');
+    const addButton = document.getElementById('addButton');
+    const saveBtn = document.getElementById('saveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const statusEl = document.getElementById('status');
+
+    let state;
+    let statusTimer;
+
+    const defaultButtons = [
+      { id: 'feed', label: '喂食', assetId: null, motion: 'none', responses: ['好吃！', '还想要一口～', '谢谢你！'] },
+      { id: 'play', label: '玩耍', assetId: null, motion: 'none', responses: ['冲呀！', '球球在哪里？', '开心到转圈！'] },
+      { id: 'sleep', label: '睡觉', assetId: null, motion: 'none', responses: ['晚安呼噜～', '让我趴一会儿。', '梦里也有骨头。'] }
+    ];
+
+    const motionOptions = [
+      { value: 'none', label: '不动效' },
+      { value: 'eat', label: '吃饭动效' },
+      { value: 'sleep', label: '睡觉动效' },
+      { value: 'laugh', label: '大笑动效' },
+      { value: 'naughty', label: '淘气动效' }
+    ];
+
+    function linesToArray(value) {
+      return value.split('\n').map((line) => line.trim()).filter(Boolean);
+    }
+    function arrayToLines(value) {
+      return Array.isArray(value) ? value.join('\n') : '';
+    }
+    function showStatus(text, duration = 2400) {
+      clearTimeout(statusTimer);
+      statusEl.textContent = text;
+      if (duration > 0) {
+        statusTimer = setTimeout(() => { statusEl.textContent = ''; }, duration);
+      }
+    }
+    function escapeHtml(value) {
+      return value.replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    }
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/'/g, '&#39;');
+    }
+
+    function renderAssets() {
+      assetsEl.innerHTML = '';
+      if (!state.assets.length) {
+        assetsEl.innerHTML = `<div class="empty">还没有自定义素材。点击“上传素材”选择宠物 GIF、WebP 或视频。</div>`;
+        return;
+      }
+
+      for (const asset of state.assets) {
+        const card = document.createElement('article');
+        card.className = `asset ${asset.id === state.selectedAssetId ? 'active' : ''}`;
+        const preview = asset.type === 'video'
+          ? `<video class="thumb" src="${asset.url}" muted loop autoplay playsinline></video>`
+          : `<img class="thumb" src="${asset.url}" alt="${escapeAttr(asset.name)}">`;
+        card.innerHTML = `
+          ${preview}
+          <h3 title="${escapeAttr(asset.name)}">${escapeHtml(asset.name)}</h3>
+          <div class="asset-actions">
+            <button class="secondary select" ${asset.id === state.selectedAssetId ? 'disabled' : ''}>${asset.id === state.selectedAssetId ? '使用中' : '切换'}</button>
+            <button class="danger delete">删除</button>
+          </div>
+        `;
+        card.querySelector('.select').addEventListener('click', async () => {
+          state = await ipcRenderer.invoke('select-asset', asset.id);
+          render();
+          showStatus('素材已切换');
+        });
+        card.querySelector('.delete').addEventListener('click', async () => {
+          if (!confirm(`确定删除“${asset.name}”？本地文件也会被移除。`)) return;
+          state = await ipcRenderer.invoke('delete-asset', asset.id);
+          render();
+          showStatus('素材已删除');
+        });
+        assetsEl.appendChild(card);
+      }
+    }
+
+    function renderSettings() {
+      const settings = state.settings;
+      sizeRange.value = settings.size;
+      sizeValue.textContent = `${settings.size}px`;
+      clickResponses.value = arrayToLines(settings.clickResponses);
+      idleMessages.value = arrayToLines(settings.idleMessages);
+      idleInterval.value = String(Math.round((settings.idleMessageInterval || 18000) / 1000));
+      renderButtons(settings.buttons || []);
+    }
+
+    function renderButtons(buttons) {
+      buttonEditor.innerHTML = '';
+      buttons.forEach((item) => addButtonEditor(item));
+    }
+
+    function assetSelectHtml(selectedAssetId) {
+      const options = ['<option value="">不切换素材</option>'];
+      for (const asset of state.assets) {
+        const selected = asset.id === selectedAssetId ? 'selected' : '';
+        options.push(`<option value="${escapeAttr(asset.id)}" ${selected}>${escapeHtml(asset.name)}</option>`);
+      }
+      return options.join('');
+    }
+
+    function motionSelectHtml(selectedMotion) {
+      return motionOptions.map((option) => {
+        const selected = option.value === selectedMotion ? 'selected' : '';
+        return `<option value="${option.value}" ${selected}>${option.label}</option>`;
+      }).join('');
+    }
+
+    function addButtonEditor(item = { label: '', assetId: null, motion: 'none', responses: [] }) {
+      const row = document.createElement('div');
+      row.className = 'interaction-item';
+      row.innerHTML = `
+        <input type="text" class="label" placeholder="按钮名" value="${escapeAttr(item.label || '')}">
+        <select class="asset-id" title="点击按钮时展示的素材">${assetSelectHtml(item.assetId || '')}</select>
+        <select class="motion" title="点击按钮时播放的动效">${motionSelectHtml(item.motion || 'none')}</select>
+        <textarea class="responses" placeholder="回应文案，每行一条">${escapeHtml(arrayToLines(item.responses))}</textarea>
+        <button class="danger remove">删除</button>
+      `;
+      row.querySelector('.remove').addEventListener('click', () => row.remove());
+      buttonEditor.appendChild(row);
+    }
+
+    function collectButtons() {
+      return [...buttonEditor.querySelectorAll('.interaction-item')]
+        .map((row) => ({
+          id: `btn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          label: row.querySelector('.label').value.trim(),
+          assetId: row.querySelector('.asset-id').value || null,
+          motion: row.querySelector('.motion').value || 'none',
+          responses: linesToArray(row.querySelector('.responses').value)
+        }))
+        .filter((item) => item.label);
+    }
+
+    function render() {
+      renderAssets();
+      renderSettings();
+    }
+
+    uploadBtn.addEventListener('click', async () => {
+      state = await ipcRenderer.invoke('upload-assets');
+      render();
+      showStatus('素材库已更新');
+    });
+    generatePersonaBtn.addEventListener('click', async () => {
+      generatePersonaBtn.disabled = true;
+      showStatus('正在生成大笑透明抠图素材，可能需要 1 分钟...', 0);
+      try {
+        state = await ipcRenderer.invoke('generate-persona-assets', {
+          apiKey: apiKeyInput.value,
+          stylePrompt: stylePrompt.value
+        });
+        render();
+        showStatus(`已生成 ${state.generatedCount || 1} 个大笑素材，并绑定互动按钮`);
+      } catch (error) {
+        showStatus(error.message || '生成失败，请检查 API Key 或网络');
+      } finally {
+        generatePersonaBtn.disabled = false;
+      }
+    });
+    folderBtn.addEventListener('click', () => ipcRenderer.invoke('show-assets-folder'));
+    placeholderBtn.addEventListener('click', async () => {
+      state = await ipcRenderer.invoke('select-asset', null);
+      render();
+      showStatus('已切换为默认占位宠物');
+    });
+    sizeRange.addEventListener('input', () => {
+      sizeValue.textContent = `${sizeRange.value}px`;
+    });
+    sizeRange.addEventListener('change', async () => {
+      state = await ipcRenderer.invoke('save-settings', { size: Number(sizeRange.value) });
+      render();
+      showStatus('显示大小已实时更新');
+    });
+    addButton.addEventListener('click', () => addButtonEditor({ label: '互动', assetId: null, motion: 'none', responses: ['嗨！'] }));
+    resetBtn.addEventListener('click', () => {
+      renderButtons(defaultButtons);
+      clickResponses.value = ['嘿嘿，被你发现啦！', '我来啦！', '再点一下试试？', '你最好啦！'].join('\n');
+      idleMessages.value = ['要摸摸吗？', '我在这里陪你工作～', '记得休息一下，喝点水。', '今天也要开心呀！'].join('\n');
+      idleInterval.value = '18';
+      showStatus('默认互动已填入，点击保存后生效');
+    });
+    saveBtn.addEventListener('click', async () => {
+      const intervalSeconds = Math.max(5, Number(idleInterval.value) || 18);
+      state = await ipcRenderer.invoke('save-settings', {
+        size: Number(sizeRange.value),
+        clickResponses: linesToArray(clickResponses.value),
+        idleMessages: linesToArray(idleMessages.value),
+        idleMessageInterval: intervalSeconds * 1000,
+        buttons: collectButtons()
+      });
+      render();
+      showStatus('设置已保存并实时生效');
+    });
+
+    ipcRenderer.on('state-changed', (_event, nextState) => {
+      state = nextState;
+      render();
+    });
+    ipcRenderer.invoke('get-state').then((nextState) => {
+      state = nextState;
+      render();
+    });
+  </script>
+</body>
+</html>
