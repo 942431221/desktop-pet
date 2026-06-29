@@ -1,3 +1,7 @@
+# AI交流群
+![1.jpg](1.jpg) ![2.jpg](2.jpg)
+# 作者微信
+
 # 桌面宠物 App
 
 基于 Electron + HTML/CSS/JavaScript 的 Windows 桌面宠物应用。它使用透明无边框悬浮窗口展示 GIF / WebP / 视频素材，并提供控制面板管理素材、互动按钮和随机文案。
@@ -100,7 +104,7 @@ $env:OPENAI_API_KEY="你的 API Key"
 ```
 
 注意：AI 生成需要联网调用 `https://aiflowlink.top/v1/images/edits`；普通素材上传、切换和互动仍然是本地离线功能。
-
+该AI生成用的是gpt-iamge2模型，效果贼棒，据说现在还有免费额度，可以去试下
 API Key 只用于发起本次生成请求，不会写入项目源码、安装包或本地配置文件。请不要把自己的 Key 写进 `main.js`、`panel.html`、`README.md` 等项目文件。
 
 ## 本地存储位置
